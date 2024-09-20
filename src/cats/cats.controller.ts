@@ -1,8 +1,10 @@
 
-import { Body, Controller, Get, Header, HttpCode, Param, Post, Redirect, Req, Res } from '@nestjs/common';
+import { Body, Controller, Get, Header, HttpCode, Param, Post, Redirect, Req, Res, StreamableFile } from '@nestjs/common';
 import { CreateCatDto } from './dto/create-cat.dto';
 import { CatsService } from './cats.service';
 import { Cat } from './interfaces/cat.interface';
+import { createReadStream, readdir, readdirSync } from 'fs';
+import path, { join } from 'path';
 
 
 //controller decorator with argument "cats", will accept incoming requests for https://whatever.meow/cats
@@ -23,6 +25,23 @@ export class CatsController {
     findAllByBreed(@Param('breedId') breedId: string): string {
         return `This action returns all cats in the breed id #${breedId} cat`;
     }
+
+    @Get('/image')
+    @Header('Content-Type', 'image/png')
+    @Header('Content-Disposition', 'inline')
+    getRandomCatImage() {
+        const files = readdirSync(join(process.cwd(), '/src/assets'));
+
+        if (files.length === 0) {
+            throw new Error('No files found in the directory');
+        }
+
+        const randomFile = files[Math.floor(Math.random() * files.length)];
+
+        const filePath = join(process.cwd(), `/src/assets/${randomFile}`);
+        return new StreamableFile(createReadStream(filePath));
+    }
+
 
     @Get('/cat/:catId')
     findOne(@Param('catId') catId: string): string {
