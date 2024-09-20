@@ -29,6 +29,7 @@ export class CatsController {
     @Get('/image')
     @Header('Content-Type', 'image/png')
     @Header('Content-Disposition', 'inline')
+    @Header('Cache-Control', 'no-cache')
     getRandomCatImage() {
         const files = readdirSync(join(process.cwd(), '/src/assets'));
 
